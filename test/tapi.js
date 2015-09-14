@@ -1,5 +1,6 @@
 require('../localenv');
 
+var _ = require('underscore'); 
 var expect = require('expect.js');
 var request = require('supertest');
 var appx = require('../app');
@@ -144,6 +145,7 @@ describe('Web Service API', function() {
     }
 
     function openStore(done) {
+      var value = {one: '1'};
       request(app)  
         .post(unauthPath + '/openStore')
         .send({
@@ -157,17 +159,31 @@ describe('Web Service API', function() {
             var accessToken = res.body.result;
             request(app)  
               .post(authPath + '/putValue')
-              .send({key: 'one', value: 'two'})
+              .send({key: 'one', value: value})
               .set('Access-Token', accessToken)
-              .expect(200)              
               .end(function(err, res) {
-                request(app)
-                .post(authPath + '/deleteStore')
-                .set('Access-Token', accessToken)
-                .expect(200)                              
-                .end(function(err, res) {      
-                  return done();
-              });
+                expect(res.body.result).to.be.equal('OK');
+                request(app)  
+                  .post(authPath + '/getValue')
+                  .send({key: 'one'})
+                  .set('Access-Token', accessToken)
+                  .end(function(err, res) {
+                    expect(_.isEqual(res.body.result, value)).to.be.ok();                
+                    request(app)  
+                      .post(authPath + '/deleteKey')
+                      .send({key: 'one'})
+                      .set('Access-Token', accessToken)
+                      .end(function(err, res) {
+                        expect(res.body.result).to.be.equal(1);                
+                        request(app)
+                          .post(authPath + '/deleteStore')
+                          .set('Access-Token', accessToken)
+                          .expect(200)                              
+                          .end(function(err, res) {      
+                            return done();
+                        });
+                    });
+                });
             });
         });
     }
