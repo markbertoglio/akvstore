@@ -11,6 +11,8 @@ describe('Web Service API', function() {
   var contentType = {'Content-Type': 'application/json'};
   var unitTestAppId = 'the warm smell of colitas';
   var storeId = Math.random().toString(18);
+  var READ_PASS = 'read-pass';
+  var WRITE_PASS = 'write-pass';
   setup();
   
   function setup() {
@@ -25,11 +27,13 @@ describe('Web Service API', function() {
   }
   
   describe('Miscellaneous', function() {
-    it('registration', appRegistration);
+    it('good registration', goodRegistration);
+    it('bad registration', badRegistration);
     it('create store', createStore);
+    it('open store - readonly', openStoreReadOnly);
     it('open store', openStore);
     
-    function appRegistration(done) {
+    function goodRegistration(done) {
       var appId = Math.random().toString(36);
       request(app)  
         .post(unauthPath + '/registerApp')
@@ -38,12 +42,23 @@ describe('Web Service API', function() {
           appId: appId,
         })        
         .expect(200)
-        .end(function(err, res) {  
-            if (err) return done(err);
-            deregister();
+        .end(function(err, res) {
+          expect(res.body.result).to.be.equal('OK');
+          // Second registration for same app should fail
+          request(app)  
+            .post(unauthPath + '/registerApp')
+            .send({
+              rootAppId: process.env.KVS_ROOT_APP_ID, 
+              appId: appId,
+            })        
+            .end(function(err, res) {
+              expect(res.body.error).to.be.equal('ALREADY_REGISTERED');
+              if (err) return done(err);
+              deregister(done);
+            });
         });      
   
-      function deregister() {
+      function deregister(done) {
         request(app)  
           .post(unauthPath + '/deregisterApp')
           .send({
@@ -53,51 +68,59 @@ describe('Web Service API', function() {
           .expect(200)
           .end(function(err, res) {  
               if (err) return done(err);
-              console.log(res.body);
               done();
           });        
-      }    
+      }
     }
-        
-    function registerApp(done) {
+    function badRegistration(done) {
+      // Can't register an app if you don't know the root app ID.
+      var appId = Math.random().toString(36);
       request(app)  
         .post(unauthPath + '/registerApp')
         .send({
-          rootAppId: process.env.KVS_ROOT_APP_ID, 
-          appId: 'funky cold medina',
+          rootAppId: 'BAD', 
+          appId: appId,
         })        
-        .expect(200)
-        .end(function(err, res) {  
-            if (err) return done(err);
-            console.log(res.body);
-            done();
-        });      
+        .end(function(err, res) {
+          expect(res.body.error).to.be.equal('ACCESS_DENIED');
+          done();
+        });          
     }
-    
+
     function createStore(done) {
       request(app)  
         .post(unauthPath + '/createStore')
         .send({
           appId: unitTestAppId,
           storeId: storeId,
-          readPassword: 'READIT',
-          writePassword: 'WRITEIT'
+          readPassword: READ_PASS,
+          writePassword: WRITE_PASS
         })        
         .expect(200)
         .end(function(err, res) {  
-            if (err) return done(err);
-            console.log(res.body);
-            done();
+          if (err) return done(err);        
+          request(app)  
+            .post(unauthPath + '/createStore')
+            .send({
+              appId: unitTestAppId,
+              storeId: storeId,
+              readPassword: READ_PASS,
+              writePassword: WRITE_PASS
+            })        
+            .end(function(err, res) {
+              expect(res.body.error).to.be.equal('STORE_ALREADY_EXISTS');
+              done();
+            });
         });
     }
 
-    function openStore(done) {
+    function openStoreReadOnly(done) {
       request(app)  
         .post(unauthPath + '/openStore')
         .send({
           appId: unitTestAppId,
           storeId: storeId,
-          password: 'WRITEIT'
+          password: READ_PASS
         })        
         .expect(200)
         .end(function(err, res) {  
@@ -108,11 +131,41 @@ describe('Web Service API', function() {
               .send({key: 'one', value: 'two'})
               .set('Access-Token', accessToken)              
               .end(function(err, res) {
-                console.log("EEREWR", err, res.body)
+                expect(res.body.error).to.be.equal('ACCESS_DENIED');
                 request(app)
                 .post(authPath + '/deleteStore')
                 .set('Access-Token', accessToken)              
-                .end(function(err, res) {                
+                .end(function(err, res) {      
+                  expect(res.body.error).to.be.equal('ACCESS_DENIED');          
+                  return done();
+              });
+            });
+        });
+    }
+
+    function openStore(done) {
+      request(app)  
+        .post(unauthPath + '/openStore')
+        .send({
+          appId: unitTestAppId,
+          storeId: storeId,
+          password: WRITE_PASS
+        })        
+        .expect(200)
+        .end(function(err, res) {  
+            if (err) return done(err);
+            var accessToken = res.body.result;
+            request(app)  
+              .post(authPath + '/putValue')
+              .send({key: 'one', value: 'two'})
+              .set('Access-Token', accessToken)
+              .expect(200)              
+              .end(function(err, res) {
+                request(app)
+                .post(authPath + '/deleteStore')
+                .set('Access-Token', accessToken)
+                .expect(200)                              
+                .end(function(err, res) {      
                   return done();
               });
             });
