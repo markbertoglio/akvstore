@@ -1,0 +1,27 @@
+{
+  "name": "kvstore",
+  "version": "0.0.1",
+  "description": "Key Value Store Service",
+  "main": "main.js",
+  "directories": {},
+  "scripts": {
+    "start": "node main.js"
+  },
+  "author": "Mark Bertoglio",
+  "license": "MIT",
+  "dependencies": {
+    "bcrypt": "^0.8.2",
+    "body-parser": "^1.12.2",
+    "express": "^4.12.3",
+    "length": "0.0.1",
+    "npmlog": "^1.2.0",
+    "redis": "^0.12.1",
+    "underscore": "^1.8.2",
+    "stools": "^0.0.1"
+  },
+  "devDependencies": {
+    "mocha": "*",
+    "expect.js": "*",
+    "supertest" : "0.6.0"
+  }
+}
