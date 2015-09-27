@@ -8,7 +8,7 @@ log.level = 'warn';
 
 var LP = "api";
 
-var OBJ_REGISTERED_APP = ["appreg", process.env.KVS_ROOT_APP_ID].join('/');
+var OBJ_REGISTERED_APP = ["appreg", process.env.AKVS_ROOT_APP_ID].join('/');
 var OBJ_APP_CREDS = "appcreds";
 var OBJ_ACCESS_TOKENS = "accesstokens";
 
@@ -27,22 +27,22 @@ var authUrls = [
   ['deleteStore', deleteStore],  
   ['getValue', getValue],
   ['putValue', putValue],
-  ['deleteKey', deleteKey]
+  ['deleteValue', deleteValue]
 ];
 
 function run(app) {  
-  var server = app.listen(process.env.KVS_API_PORT, function () {
+  var server = app.listen(process.env.AKVS_API_PORT, function () {
     var port = server.address().port;
     log.info(LP, "listening on port %d", port);
   });
 
   _.each(unauthUrls, function(entry) {
-    var url = [process.env.KVS_API_BASE_URI, 'unauth', entry[0]].join('/');
+    var url = [process.env.AKVS_API_BASE_URI, 'unauth', entry[0]].join('/');
     app.all(url, logRequest, entry[1]);
   });
 
   _.each(authUrls, function(entry) {
-    var url = [process.env.KVS_API_BASE_URI, entry[0]].join('/');
+    var url = [process.env.AKVS_API_BASE_URI, entry[0]].join('/');
     app.all(url, logRequest, setAccess, entry[1]);
   });
 }
@@ -88,7 +88,7 @@ function registerApp(request, response) {
     return sendError(response, "error: missing parameter");
   }
   
-  if (userData.rootAppId != process.env.KVS_ROOT_APP_ID) {
+  if (userData.rootAppId != process.env.AKVS_ROOT_APP_ID) {
     return sendError(response, "error: access denied");
   }
   
@@ -119,7 +119,7 @@ function deregisterApp(request, response) {
     return sendError(response, "error: missing parameter");
   }
   
-  if (userData.rootAppId != process.env.KVS_ROOT_APP_ID) {
+  if (userData.rootAppId != process.env.AKVS_ROOT_APP_ID) {
     return sendError(response, "error: access denied");
   }
   
@@ -161,8 +161,8 @@ function createStore(request, response) {
     if (result) {
       return standardResponse(response, "error: store already exists");
     } 
-    var readPwHash = userData.readPassword && bcrypt.hashSync(userData.readPassword, process.env.KVS_PASSWORD_SALT);
-    var writePwHash = userData.writePassword && bcrypt.hashSync(userData.writePassword, process.env.KVS_PASSWORD_SALT);    
+    var readPwHash = userData.readPassword && bcrypt.hashSync(userData.readPassword, process.env.AKVS_PASSWORD_SALT);
+    var writePwHash = userData.writePassword && bcrypt.hashSync(userData.writePassword, process.env.AKVS_PASSWORD_SALT);    
     var storeCreds = {
       storeKey: Math.random().toString(36),
       readPwHash: readPwHash, 
@@ -286,7 +286,7 @@ function putValue(request, response) {
   }   
 }
 
-function deleteKey(request, response) {
+function deleteValue(request, response) {
   if (!request.access || request.access.mode != 'rw') {
     return standardResponse(response, "error: access denied");
   }
