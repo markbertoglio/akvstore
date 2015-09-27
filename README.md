@@ -1,5 +1,5 @@
 # akvstore
-Authenticated key/value store built on redis.
+A nodejs service that provides an authenticated key/value store built on redis.
 
 AKVStore provides a basic key-value store with super light authentication. Create a readonly store for shared application data like application settings and content. Create a read/write store for client specific data.
 
