@@ -27,7 +27,7 @@ Create a new store for a particular application. writePassword is optional. If i
 ### openStore(appId, storeId, password)
 Open a store. Password will provide either read only or read/write access depending on how store was created and which password is supplied. Returns a new access token. 
 
-### * deleteStore(appId, storeId)
+### * deleteStore()
 Delete a store and all of its data. 
 
 ### * getValue(key)
