@@ -14,3 +14,23 @@ Set the following environment variables
 * REDIS_PW
 
 
+##API
+### registerApp(rootAppId)
+Register a new application. Requires knowledge of secret rootAppId.
+
+*** deregisterApp(rootAppId, appId)
+Deregister application and delete all associated stores.
+
+*** createStore(appId, storeId, readPassword, writePassword)
+Create a store for a particular application.
+
+*** openStore(appId, storeId, password)
+Open a store. Password will provide either read only or read/write access
+
+*** deleteStore(appId, storeId)
+
+*** getValue(key)
+
+*** putValue(key, value)
+
+*** deleteKey(key)
