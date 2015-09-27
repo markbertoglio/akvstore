@@ -1,7 +1,7 @@
 # akvstore
 Authenticated key/value store built on redis.
 
-AKVStore provides a basic key-value store with super light authentication.
+AKVStore provides a basic key-value store with super light authentication. Create a readonly store for shared application data like application settings and connection. Create a read/write store for client specific data.
 
 ## Configuration
 Set the following environment variables
