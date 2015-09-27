@@ -36,7 +36,7 @@ Get a value for a particular key.
 ### * putValue(key, value)
 Add new value or replace an existing value.
 
-### * deleteKey(key)
+### * deleteValue(key)
 Delete a value.
 
-* An authenticated method - set 'access-token' header with a a valid access token.
+#### * Authenticated method. Set 'access-token' header with a a valid access token.
