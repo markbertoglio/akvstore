@@ -15,22 +15,30 @@ Set the following environment variables
 
 
 ##API
-### registerApp(rootAppId)
-Register a new application. Requires knowledge of secret rootAppId.
+### registerApp(rootAppId, appId)
+Register a new application. The appId is must be unique within the service. Only clients with the knowledge of the secret rootAppId have access to create applications.
 
-*** deregisterApp(rootAppId, appId)
-Deregister application and delete all associated stores.
+### deregisterApp(rootAppId, appId)
+Deregister an application and delete all associated stores.
 
-*** createStore(appId, storeId, readPassword, writePassword)
-Create a store for a particular application.
+### createStore(appId, storeId, readPassword, writePassword)
+Create a new store for a particular application. If writePassword is optional. If it is not included then readPassword provies read and write access to the store.
 
-*** openStore(appId, storeId, password)
-Open a store. Password will provide either read only or read/write access
+### openStore(appId, storeId, password)
+Open a store. Password will provide either read only or read/write access depending on how store was created and which password is supplied. Returns a new accessToken. 
 
-*** deleteStore(appId, storeId)
+### deleteStore(appId, storeId)
+Delete a store and all of its data. 
+Authenticated method: set access-token header.
 
-*** getValue(key)
+### getValue(key)
+Get a value for a particular key.
+Authenticated method: set access-token header.
 
-*** putValue(key, value)
+### putValue(key, value)
+Add new value or replace an existing value.
+Authenticated method: set access-token header.
 
-*** deleteKey(key)
+### deleteKey(key)
+Delete a value.
+Authenticated method: set access-token header.
