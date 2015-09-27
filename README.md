@@ -39,4 +39,4 @@ Add new value or replace an existing value.
 ### * deleteValue(key)
 Delete a value.
 
-#### * Authenticated method. Set 'access-token' header with a a valid access token.
+##### * Authenticated method. Set 'access-token' header with a a valid access token.
